@@ -6,15 +6,24 @@ import 'package:exp_tracker/widget/chart.dart';
 import 'package:exp_tracker/widget/new_transaction.dart';
 import 'package:exp_tracker/widget/transaction_list.dart';
 import 'model/transaction.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(TransactionAdapter()); // Register the adapter
+  await Hive.openBox<Transaction>('transactions'); // Open a box
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -68,11 +77,45 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Transaction> _userTransactions = [];
+  // final List<Transaction> _userTransactions = [];
   bool showswitch = false;
 
+  late Box<Transaction> transactionBox;
+  List<Transaction> transactions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    transactionBox = Hive.box<Transaction>('transactions');
+    fetchTransactions();
+  }
+
+  void fetchTransactions() {
+    setState(() {
+      transactions = transactionBox.values.toList();
+    });
+  }
+
+  // void _addNewTransaction(Transaction newTransaction) {
+  //  // Refresh the transaction list
+  // }
+
+  void _deleteTransactionsByDate(DateTime date) {
+    // Get all the keys from the box
+    final allKeys = transactionBox.keys.toList();
+    // Iterate over all keys and delete matching transactions
+    for (var key in allKeys) {
+      final transaction = transactionBox.get(key);
+      if (transaction != null && transaction.date.isAtSameMomentAs(date)) {
+        transactionBox.delete(key); // Delete using the key
+      }
+    }
+
+    fetchTransactions(); // Refresh the transaction list
+  }
+
   List<Transaction> get _recenttransactions {
-    return _userTransactions.where((element) {
+    return transactions.where((element) {
       return element.date.isAfter(
         DateTime.now().subtract(
           Duration(days: 7),
@@ -90,9 +133,8 @@ class _MyHomePageState extends State<MyHomePage> {
       date: choosendate,
     );
 
-    setState(() {
-      _userTransactions.add(newTx);
-    });
+    transactionBox.add(newTx);
+    fetchTransactions();
   }
 
   void _startAddNewTransction(BuildContext ctx) {
@@ -107,29 +149,15 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
-  void deleteTransaction(String id) {
-    setState(() {
-      _userTransactions.removeWhere((element) => element.id == id);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final islandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     final appBar = AppBar(
       title: Text(
-        'personal expense',
-        style: TextStyle(color: Colors.green[300]),
+        'Track Your Daily Expenses',
+        style: TextStyle(color: Colors.black),
       ),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.add),
-          onPressed: () {
-            return _startAddNewTransction(context);
-          },
-        ),
-      ],
     );
     final chartwidget = SizedBox(
       height: (MediaQuery.of(context).size.height -
@@ -143,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
               appBar.preferredSize.height -
               MediaQuery.of(context).padding.top) *
           0.7,
-      child: TransactionList(_userTransactions, deleteTransaction),
+      child: TransactionList(transactions, _deleteTransactionsByDate),
     );
     return Scaffold(
       appBar: appBar,
@@ -170,7 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {

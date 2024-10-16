@@ -15,26 +15,26 @@ class TransactionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 3, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 6),
       elevation: 5,
       child: ListTile(
         leading: Padding(
-          padding: EdgeInsets.all(4),
+          padding: const EdgeInsets.all(4),
           child: CircleAvatar(
             radius: 30,
             child: Padding(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               child: FittedBox(child: Text('\$${transaction.amount}')),
             ),
           ),
         ),
         title: Text('\$${transaction.title}'),
         subtitle: Text(
-          new DateFormat.yMMMd().format(transaction.date),
+          DateFormat.yMMMd().format(transaction.date),
         ),
         trailing: IconButton(
-          onPressed: () => deleteTransaction(transaction.id),
-          icon: Icon(Icons.delete),
+          onPressed: () => deleteTransaction(transaction.date),
+          icon: const Icon(Icons.delete),
           color: Theme.of(context).colorScheme.error,
         ),
       ),
