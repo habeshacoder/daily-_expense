@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 class NewTransaction extends StatefulWidget {
   final Function addTx;
-  NewTransaction(this.addTx);
+  const NewTransaction(this.addTx);
 
   @override
   State<NewTransaction> createState() => _NewTransactionState();
@@ -56,52 +56,67 @@ class _NewTransactionState extends State<NewTransaction> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Card(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          // ignore: prefer_const_literals_to_create_immutables
-          children: [
-            TextField(
-              controller: textControler,
-              decoration: InputDecoration(labelText: "title"),
-              onSubmitted: (_) {
-                submitData();
-              },
-            ),
-            TextField(
-              controller: amountController,
-              decoration: InputDecoration(labelText: "amount"),
-              keyboardType: TextInputType.number,
-              onSubmitted: (_) {
-                submitData();
-              },
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(
-                vertical: 7,
-              ),
-              decoration: BoxDecoration(color: Colors.grey),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      SelectedDate == null
-                          ? 'no date chosen '
-                          : 'picked date: ${DateFormat.yMd().format(SelectedDate)}',
+      child: Container(
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              // ignore: prefer_const_literals_to_create_immutables
+              children: [
+                TextField(
+                  controller: textControler,
+                  decoration: const InputDecoration(labelText: "title"),
+                  onSubmitted: (_) {
+                    submitData();
+                  },
+                ),
+                TextField(
+                  controller: amountController,
+                  decoration: const InputDecoration(labelText: "amount"),
+                  keyboardType: TextInputType.number,
+                  onSubmitted: (_) {
+                    submitData();
+                  },
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 7,
+                  ),
+                  decoration: const BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      )),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            SelectedDate == null
+                                ? 'no date chosen '
+                                : 'picked date: ${DateFormat.yMd().format(SelectedDate)}',
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: presentDatePicker,
+                          child: const Text('choos the date'),
+                        ),
+                      ],
                     ),
                   ),
-                  TextButton(
-                    onPressed: presentDatePicker,
-                    child: Text('choos the date'),
-                  ),
-                ],
-              ),
+                ),
+                TextButton(
+                  onPressed: submitData,
+                  child: const Text("add transaction"),
+                )
+              ],
             ),
-            TextButton(
-              onPressed: submitData,
-              child: Text("add transaction"),
-            )
-          ],
+          ),
         ),
       ),
     );
