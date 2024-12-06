@@ -1,33 +1,33 @@
-// ignore_for_file: prefer_const_constructors
-
+import 'package:exp_tracker/common/app_text_style.dart';
 import 'package:flutter/material.dart';
 
 class ChartBar extends StatelessWidget {
   final String label;
   final double spendingAmount;
   final double spendingPctOfTotal;
-  ChartBar(this.label, this.spendingAmount, this.spendingPctOfTotal);
+  const ChartBar(this.label, this.spendingAmount, this.spendingPctOfTotal,
+      {super.key});
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Column(
           children: <Widget>[
-            Container(
+            SizedBox(
                 height: constraints.maxHeight * 0.15,
                 child: Text('\$${spendingAmount.toStringAsFixed(0)}')),
             SizedBox(
               height: constraints.maxHeight * 0.05,
             ),
-            Container(
-              height: constraints.maxHeight * 0.6,
+            SizedBox(
+              height: constraints.maxHeight * 0.4,
               width: 10,
               child: Stack(
                 children: <Widget>[
                   Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey, width: 1.0),
-                      color: Color.fromRGBO(220, 220, 220, 1),
+                      color: const Color.fromRGBO(220, 220, 220, 1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
@@ -43,13 +43,16 @@ class ChartBar extends StatelessWidget {
                 ],
               ),
             ),
-            // ignore: prefer_const_constructors
             SizedBox(
               height: constraints.maxHeight * 0.05,
             ),
-            Container(
+            SizedBox(
               height: constraints.maxHeight * 0.15,
-              child: FittedBox(child: Text(label)),
+              child: FittedBox(
+                  child: Text(
+                label,
+                style: AppTextStyle.h4Normal.copyWith(color: Colors.black),
+              )),
             ),
           ],
         );

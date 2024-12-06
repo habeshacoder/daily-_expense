@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, unused_field, use_key_in_widget_constructors
 
+import 'package:exp_tracker/common/app_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:exp_tracker/widget/transaction_item.dart';
 
@@ -13,26 +14,14 @@ class TransactionList extends StatelessWidget {
   TransactionList(this.transactions, this.deleteTransaction);
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 570,
       child: transactions.isEmpty
-          ? Column(
-              children: <Widget>[
-                Text(
-                  'no tranasction added yet',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  height: 200,
-                  child: Image.asset(
-                    'assets/images/waiting.png',
-                    fit: BoxFit.cover,
-                  ),
-                )
-              ],
+          ? Center(
+              child: Text(
+                'You Haven\'t Added Any Expenses Yet.',
+                style: AppTextStyle.h3Bold,
+              ),
             )
           : ListView.builder(
               itemBuilder: (context, index) {

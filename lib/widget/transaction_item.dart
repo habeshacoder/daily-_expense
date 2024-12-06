@@ -1,3 +1,4 @@
+import 'package:exp_tracker/utility/capitilize.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:exp_tracker/model/transaction.dart';
@@ -28,7 +29,7 @@ class TransactionItem extends StatelessWidget {
             ),
           ),
         ),
-        title: Text('\$${transaction.title}'),
+        title: Text(capitalizeTitle(transaction.title)),
         subtitle: Text(
           DateFormat.yMMMd().format(transaction.date),
         ),

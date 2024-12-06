@@ -1,5 +1,9 @@
 // ignore_for_file: prefer_const_constructors, unused_element
 
+import 'package:exp_tracker/common/app_colors.dart'; // Your existing color file
+import 'package:exp_tracker/common/app_text_style.dart';
+import 'package:exp_tracker/common/ui_helpers.dart';
+import 'package:exp_tracker/nfc_app/view/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:exp_tracker/widget/chart.dart';
@@ -28,41 +32,17 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'personal expense',
       theme: ThemeData(
-        hintColor: Colors.amber,
-        fontFamily: "Quicksand",
-        textTheme: ThemeData.light().textTheme.copyWith(
-              titleLarge: TextStyle(
-                fontFamily: 'OpenSans',
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+        primaryColor: primaryColor, // Set the primary color globally
+        scaffoldBackgroundColor: backgroundColor,
         appBarTheme: AppBarTheme(
-          toolbarTextStyle: ThemeData.light()
-              .textTheme
-              .copyWith(
-                titleLarge: TextStyle(
-                  fontFamily: 'OpenSans',
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-              .bodyMedium,
-          titleTextStyle: ThemeData.light()
-              .textTheme
-              .copyWith(
-                titleLarge: TextStyle(
-                  fontFamily: 'OpenSans',
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-              .titleLarge,
+          backgroundColor: primaryColor,
+          titleTextStyle: TextStyle(color: whiteColor, fontSize: 20),
         ),
-        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.purple)
-            .copyWith(error: Colors.red),
+        buttonTheme: ButtonThemeData(
+          buttonColor: primaryColor,
+          textTheme: ButtonTextTheme.primary,
+        ),
       ),
       home: MyHomePage(),
     );
@@ -77,7 +57,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // final List<Transaction> _userTransactions = [];
   bool showswitch = false;
 
   late Box<Transaction> transactionBox;
@@ -96,22 +75,17 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  // void _addNewTransaction(Transaction newTransaction) {
-  //  // Refresh the transaction list
-  // }
-
   void _deleteTransactionsByDate(DateTime date) {
-    // Get all the keys from the box
     final allKeys = transactionBox.keys.toList();
-    // Iterate over all keys and delete matching transactions
     for (var key in allKeys) {
       final transaction = transactionBox.get(key);
       if (transaction != null && transaction.date.isAtSameMomentAs(date)) {
-        transactionBox.delete(key); // Delete using the key
+        transactionBox.delete(key);
+        break;
       }
     }
 
-    fetchTransactions(); // Refresh the transaction list
+    fetchTransactions();
   }
 
   List<Transaction> get _recenttransactions {
@@ -137,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
     fetchTransactions();
   }
 
-  void _startAddNewTransction(BuildContext ctx) {
+  void _startAddNewTransaction(BuildContext ctx) {
     showModalBottomSheet(
         context: ctx,
         isScrollControlled: true,
@@ -154,19 +128,35 @@ class _MyHomePageState extends State<MyHomePage> {
     final islandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     final appBar = AppBar(
+      actions: [
+        InkWell(
+            onTap: () async {
+              final app = await App.withDependency();
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => app,
+                  ));
+            },
+            child: Icon(
+              Icons.menu,
+              color: whiteColor,
+            )),
+        horizontalSpaceSmall
+      ],
       title: Text(
-        'Track Your Daily Expenses',
-        style: TextStyle(color: Colors.black),
+        'Recod Expenses',
+        style: TextStyle(color: whiteColor),
       ),
     );
-    final chartwidget = SizedBox(
+    final chartWidget = SizedBox(
       height: (MediaQuery.of(context).size.height -
               appBar.preferredSize.height -
               MediaQuery.of(context).padding.top) *
-          0.3,
+          0.2,
       child: Chart(_recenttransactions),
     );
-    final txlistwidget = SizedBox(
+    final txListWidget = SizedBox(
       height: (MediaQuery.of(context).size.height -
               appBar.preferredSize.height -
               MediaQuery.of(context).padding.top) *
@@ -176,33 +166,30 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: appBar,
       body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            if (islandscape)
-              Row(
-                children: <Widget>[
-                  Text('swich chart'),
-                  Switch(
-                    value: showswitch,
-                    onChanged: (val) {
-                      setState(() {
-                        showswitch = val;
-                      });
-                    },
-                  ),
-                ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: middleSize),
+          child: Column(
+            children: <Widget>[
+              verticalSpaceSmall,
+              Text(
+                'Once added, the chart only compares the records from the past seven days.',
+                style: AppTextStyle.h3Normal,
+                textAlign: TextAlign.justify,
               ),
-            if (!islandscape) chartwidget,
-            if (!islandscape) txlistwidget,
-            showswitch ? chartwidget : txlistwidget,
-          ],
+              verticalSpaceSmall,
+              if (!islandscape && transactions.isNotEmpty) chartWidget,
+              if (!islandscape) txListWidget,
+              showswitch ? chartWidget : txListWidget,
+            ],
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
       floatingActionButton: FloatingActionButton(
+        backgroundColor: primaryColor,
         child: Icon(Icons.add),
         onPressed: () {
-          return _startAddNewTransction(context);
+          return _startAddNewTransaction(context);
         },
       ),
     );
